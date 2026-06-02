@@ -332,6 +332,12 @@ def configure_speaker_masks(prompt, input_type, width, height, job_input):
 def handler(job):
     job_input = job.get("input", {})
 
+    if job_input.get("health_check"):
+        return {
+            "status": "ok",
+            "message": "InfiniteTalk handler is ready.",
+        }
+
     # job_input을 로깅할 때 base64 데이터는 truncate해서 출력
     log_input = job_input.copy()
     for key in ["image_base64", "video_base64", "wav_base64", "wav_base64_2"]:

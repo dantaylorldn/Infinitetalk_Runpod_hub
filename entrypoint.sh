@@ -3,6 +3,11 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+if [ "$RUNPOD_HUB_SMOKE_TEST" = "1" ]; then
+    echo "RUNPOD_HUB_SMOKE_TEST=1; starting handler without ComfyUI."
+    exec python handler.py
+fi
+
 # Start ComfyUI in the background
 echo "Starting ComfyUI in the background..."
 python /ComfyUI/main.py --listen --use-sage-attention &
