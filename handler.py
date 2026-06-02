@@ -672,4 +672,5 @@ def handler(job):
             return {"error": f"Base64 인코딩 실패: {e}"}
 
 
-runpod.serverless.start({"handler": handler})
+if __name__ == "__main__":
+    runpod.serverless.start({"handler": handler})
