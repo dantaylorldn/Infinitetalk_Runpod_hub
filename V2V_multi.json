@@ -257,6 +257,10 @@
       "audio_2": [
         "314",
         0
+      ],
+      "ref_target_masks": [
+        "317",
+        0
       ]
     },
     "class_type": "MultiTalkWav2VecEmbeds",
@@ -569,6 +573,57 @@
     "class_type": "MelBandRoFormerSampler",
     "_meta": {
       "title": "Mel-Band RoFormer Sampler"
+    }
+  },
+  "315": {
+    "inputs": {
+      "shape": "square",
+      "frames": 1,
+      "location_x": 160,
+      "location_y": 320,
+      "grow": 0,
+      "frame_width": 640,
+      "frame_height": 640,
+      "shape_width": 344,
+      "shape_height": 640
+    },
+    "class_type": "CreateShapeMask",
+    "_meta": {
+      "title": "Speaker 1 Mask"
+    }
+  },
+  "316": {
+    "inputs": {
+      "shape": "square",
+      "frames": 1,
+      "location_x": 480,
+      "location_y": 320,
+      "grow": 0,
+      "frame_width": 640,
+      "frame_height": 640,
+      "shape_width": 344,
+      "shape_height": 640
+    },
+    "class_type": "CreateShapeMask",
+    "_meta": {
+      "title": "Speaker 2 Mask"
+    }
+  },
+  "317": {
+    "inputs": {
+      "inputcount": 2,
+      "mask_1": [
+        "315",
+        0
+      ],
+      "mask_2": [
+        "316",
+        0
+      ]
+    },
+    "class_type": "MaskBatchMulti",
+    "_meta": {
+      "title": "Speaker Mask Batch"
     }
   }
 }

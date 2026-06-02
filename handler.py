@@ -276,6 +276,59 @@ def calculate_max_frames_from_audio(wav_path, wav_path_2=None, fps=25):
     return max_frames
 
 
+def configure_speaker_masks(prompt, input_type, width, height, job_input):
+    """Configure simple two-speaker masks for multi-person InfiniteTalk workflows."""
+    if input_type == "image":
+        left_mask_id, right_mask_id = "308", "309"
+        batch_mask_id = "310"
+    else:
+        left_mask_id, right_mask_id = "315", "316"
+        batch_mask_id = "317"
+
+    if not all(node_id in prompt for node_id in [left_mask_id, right_mask_id, batch_mask_id, "194"]):
+        logger.warning("⚠️ 다중 인물 마스크 노드를 찾을 수 없습니다. 워크플로우 기본값을 사용합니다.")
+        return
+
+    # Default to split-screen masks. This matches interview/podcast layouts and
+    # prevents WanVideoWrapper from receiving None for x_ref_attn_map.
+    overlap = int(job_input.get("speaker_mask_overlap_px", 24))
+    left_box = job_input.get("speaker_1_bbox")
+    right_box = job_input.get("speaker_2_bbox")
+
+    def apply_box(node_id, box, fallback_center_x):
+        inputs = prompt[node_id].setdefault("inputs", {})
+        inputs["shape"] = "square"
+        inputs["frames"] = 1
+        inputs["frame_width"] = width
+        inputs["frame_height"] = height
+
+        if box:
+            x = int(box.get("x", 0))
+            y = int(box.get("y", 0))
+            w = int(box.get("width", width // 2))
+            h = int(box.get("height", height))
+            inputs["location_x"] = x + w // 2
+            inputs["location_y"] = y + h // 2
+            inputs["shape_width"] = max(8, w)
+            inputs["shape_height"] = max(8, h)
+        else:
+            inputs["location_x"] = fallback_center_x
+            inputs["location_y"] = height // 2
+            inputs["shape_width"] = max(8, (width // 2) + overlap)
+            inputs["shape_height"] = height
+
+        inputs["grow"] = 0
+
+    apply_box(left_mask_id, left_box, width // 4)
+    apply_box(right_mask_id, right_box, (width * 3) // 4)
+
+    prompt[batch_mask_id]["inputs"]["inputcount"] = 2
+    prompt["194"]["inputs"]["ref_target_masks"] = [batch_mask_id, 0]
+    logger.info(
+        f"✅ 다중 인물 마스크 설정됨: speaker1={left_mask_id}, speaker2={right_mask_id}, batch={batch_mask_id}"
+    )
+
+
 def handler(job):
     job_input = job.get("input", {})
 
@@ -478,6 +531,8 @@ def handler(job):
         else:  # V2V_multi.json의 경우
             if "313" in prompt:
                 prompt["313"]["inputs"]["audio"] = wav_path_2
+
+        configure_speaker_masks(prompt, input_type, width, height, job_input)
 
     ws_url = f"ws://{server_address}:8188/ws?clientId={client_id}"
     logger.info(f"Connecting to WebSocket: {ws_url}")

@@ -80,6 +80,20 @@ The `input` object must contain the following fields. Images, videos, and audio 
 | `wav_url_2` | `string` | No | Same as first audio | URL to the second audio file for multi-person scenarios |
 | `wav_base64_2` | `string` | No | Same as first audio | Base64 encoded string of the second audio file for multi-person scenarios |
 
+#### Multi-Person Speaker Masks
+Multi-person workflows require a speaker mask batch so InfiniteTalk can associate each audio track with the correct person. By default, the handler creates two split-screen masks:
+
+- speaker 1 / `wav_url` / `wav_path` / `wav_base64`: left half of the frame
+- speaker 2 / `wav_url_2` / `wav_path_2` / `wav_base64_2`: right half of the frame
+
+For tighter control, provide optional bounding boxes in output pixel coordinates:
+
+| Parameter | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `speaker_1_bbox` | `object` | No | Left half | Bounding box for speaker 1: `{ "x": 0, "y": 0, "width": 256, "height": 512 }` |
+| `speaker_2_bbox` | `object` | No | Right half | Bounding box for speaker 2: `{ "x": 256, "y": 0, "width": 256, "height": 512 }` |
+| `speaker_mask_overlap_px` | `integer` | No | `24` | Overlap added to each default half-frame mask. Ignored when explicit bounding boxes are provided. |
+
 #### Other Parameters
 | Parameter | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -117,6 +131,8 @@ The `input` object must contain the following fields. Images, videos, and audio 
     "image_url": "https://example.com/portrait.jpg",
     "wav_url": "https://example.com/audio1.wav",
     "wav_url_2": "https://example.com/audio2.wav",
+    "speaker_1_bbox": { "x": 0, "y": 0, "width": 256, "height": 512 },
+    "speaker_2_bbox": { "x": 256, "y": 0, "width": 256, "height": 512 },
     "width": 512,
     "height": 512
   }
