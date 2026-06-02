@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "handler_validation_smoke_test",
+      "input": {
+        "input_type": "image",
+        "person_count": "multi",
+        "prompt": "Two people having a conversation.",
+        "image_path": "/tmp/nonexistent-image.png",
+        "wav_path": "/tmp/nonexistent-audio-1.wav",
+        "wav_path_2": "/tmp/nonexistent-audio-2.wav",
+        "width": 512,
+        "height": 512,
+        "max_frame": 25
+      },
+      "timeout": 10000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA GeForce RTX 4090",
+    "gpuCount": 1,
+    "allowedCudaVersions": [
+      "12.8"
+    ]
+  }
+}
